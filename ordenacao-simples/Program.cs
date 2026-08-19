@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 class Program
 {
@@ -6,7 +7,7 @@ class Program
 
     static void Main()
     {
-        int opcao;
+    /*    int opcao;
 
         do
         {
@@ -55,6 +56,43 @@ class Program
             }
 
         } while (opcao != 0);
+    */
+
+        Stopwatch tempoTotal = new Stopwatch();
+        tempoTotal.Start();
+
+        Stopwatch tempoGeracao = new Stopwatch();
+        tempoGeracao.Start();
+        GerarArray();
+        tempoGeracao.Stop();
+        Console.WriteLine($"{tempoGeracao.Elapsed.TotalMilliseconds}");
+
+        Stopwatch tempoOrdenacao = new Stopwatch();
+        tempoOrdenacao.Start();
+        OrdenarArray();
+        tempoOrdenacao.Stop();
+        Console.WriteLine($"{tempoOrdenacao.Elapsed.TotalMilliseconds}");
+
+        Stopwatch tempoPrimos = new Stopwatch();
+        tempoPrimos.Start();
+        MostrarPrimos();
+        tempoPrimos.Stop();
+        Console.WriteLine($"{tempoPrimos.Elapsed.TotalMilliseconds}");
+
+// reordenando e gerando os primos de novo 
+        
+        tempoOrdenacao.Restart();
+        OrdenarArray();
+        tempoOrdenacao.Stop();
+        Console.WriteLine($"{tempoOrdenacao.Elapsed.TotalMilliseconds}");
+
+        tempoPrimos.Restart();
+        MostrarPrimos();
+        tempoPrimos.Stop();
+        Console.WriteLine($"{tempoPrimos.Elapsed.TotalMilliseconds}");
+
+        tempoTotal.Stop();
+        Console.WriteLine($"{tempoTotal.Elapsed.TotalMilliseconds}");
     }
 
     static void GerarArray()
@@ -66,7 +104,7 @@ class Program
             numeros[i] = random.Next(0, 15001);
         }
 
-        Console.WriteLine("Array gerado com sucesso!");
+    //    Console.WriteLine("Array gerado com sucesso!");
     }
 
     static void OrdenarArray()
@@ -85,14 +123,14 @@ class Program
             }
         }
 
-        Console.WriteLine("Array ordenado!");
+    //    Console.WriteLine("Array ordenado!");
     }
 
     static void MostrarArray()
     {
         for (int i = 0; i < numeros.Length - 1; i++)
         {
-                Console.Write(numeros[i] + " ");
+    //            Console.Write(numeros[i] + " ");
         }        
 
     }
@@ -100,17 +138,17 @@ class Program
     static void MostrarPrimos()
     {
 
-        Console.WriteLine("Números primos encontrados:\n");
+    //        Console.WriteLine("Números primos encontrados:\n");
 
         foreach (int numero in numeros)
         {
             if (EhPrimo(numero))
             {
-                Console.Write(numero + " ");
+    //            Console.Write(numero + " ");
             }
         }
 
-        Console.WriteLine();
+    //    Console.WriteLine();
     }
 
     static bool EhPrimo(int numero)
@@ -124,7 +162,7 @@ class Program
         if (numero % 2 == 0)
             return false;
 
-        for (int i = 3; i <= numero; i += 2)
+        for (int i = 3; i * i <= numero; i += 2)
         {
             if (numero % i == 0)
                 return false;
