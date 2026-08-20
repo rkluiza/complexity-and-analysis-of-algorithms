@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 class selectionSort {
 
-    static int[] numeros = new int[500000];
+    static int[] numeros = new int[300000];
 
     static void Main() {
 
