@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 
 class bubbleSort{
-    static int[] numeros = new int[1000];
+    static int[] numeros = new int[300000];
 
     static void Main()
     {
@@ -40,7 +40,7 @@ class bubbleSort{
     static void OrdenarArray()
     {
         for (int i = 0; i < numeros.Length - 1; i++){
-            for (int j = 0; j < numeros.Length - 1 - i; j++){
+            for (int j = 0; j < numeros.Length - i - 1; j++){
                 if (numeros[j] > numeros[j + 1]){
                     int aux = numeros[j];
                     numeros[j] = numeros[j + 1];
