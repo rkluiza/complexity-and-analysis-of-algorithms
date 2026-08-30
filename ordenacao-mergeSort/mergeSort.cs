@@ -56,8 +56,13 @@ class mergeSort{
         int[] esquerda = new int[n1];
         int[] direita = new int[n2];
 
-        Array.Copy(vetor, inicio, esquerda, 0, n1);
-        Array.Copy(vetor, meio + 1, direita, 0, n2);
+        for (int i = 0; i < n1; i++){
+            esquerda[i] = vetor[inicio + i];
+        }
+
+        for (int j = 0; j < n2; j++){
+            direita[j] = vetor[meio + 1 + j];
+        }
 
         int i = 0;
         int j = 0;
