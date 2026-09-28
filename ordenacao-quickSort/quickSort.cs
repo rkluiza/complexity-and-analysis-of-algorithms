@@ -34,6 +34,30 @@ class quickSort{
         }
     }
 
+    static int[] GerarVetorParticaoEquilibrada(int tamanho)
+    {
+        int[] vetor = new int[tamanho];
+
+        int meio = tamanho / 2;
+
+        // Coloca valores menores que o pivô
+        for (int i = 0; i < meio; i++)
+        {
+            vetor[i] = i + 1;
+        }
+
+        // Coloca valores maiores que o pivô
+        for (int i = meio; i < tamanho - 1; i++)
+        {
+            vetor[i] = i + 2;
+        }
+
+        // O pivô fica por último
+        vetor[tamanho - 1] = meio + 1;
+
+        return vetor;
+    }
+
     static void OrdenarArray()
         {
             QuickSort(numeros, 0, numeros.Length - 1);

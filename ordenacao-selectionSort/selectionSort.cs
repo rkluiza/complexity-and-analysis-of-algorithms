@@ -45,6 +45,18 @@ class selectionSort {
         }
     }
 
+    static int[] GerarVetorInverso(int tamanho)
+    {
+        int[] vetor = new int[tamanho];
+
+        for (int i = 0; i < tamanho; i++)
+        {
+            vetor[i] = tamanho - i;
+        }
+
+        return vetor;
+    }
+
     static void OrdenarArray(int[] numeros){
 
         // é um algoritmo simples que divide a lista em duas partes: os elementos já ordenados à esquerda e os não ordenados à direita.

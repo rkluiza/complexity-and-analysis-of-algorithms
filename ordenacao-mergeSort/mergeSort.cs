@@ -34,6 +34,18 @@ class mergeSort{
         }
     }
 
+    static int[] GerarVetorInverso(int tamanho)
+    {
+        int[] vetor = new int[tamanho];
+
+        for (int i = 0; i < tamanho; i++)
+        {
+            vetor[i] = tamanho - i;
+        }
+
+        return vetor;
+    }
+
     static void OrdenarArray(){
         Sort(numeros, 0, numeros.Length - 1);
     }
