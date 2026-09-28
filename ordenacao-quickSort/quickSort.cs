@@ -1,19 +1,33 @@
 using System;
 using System.Diagnostics;
+using System.Threading;
 
 class quickSort{
     static int[] numeros = new int[500000];
 
+    // No pior caso a recursão chega a profundidade n, o que estoura a pilha
+    // padrão (1 MB). Por isso a ordenação roda em uma thread com pilha de 1 GB.
+    const int TamanhoPilha = 1024 * 1024 * 1024;
+
     static void Main()
     {
-        numeros = GerarVetorParticaoEquilibrada(numeros.Length);
-
         Stopwatch tempoOrdenacao = new Stopwatch();
 
+        // Melhor caso: o pivô é sempre a mediana do subvetor
+        numeros = GerarMelhorCaso(numeros.Length);
+
         tempoOrdenacao.Start();
-        OrdenarArray();
+        OrdenarComPilhaGrande();
         tempoOrdenacao.Stop();
-        Console.WriteLine("Ordenar:" + tempoOrdenacao.Elapsed.TotalMilliseconds);
+        Console.WriteLine("Melhor caso:" + tempoOrdenacao.Elapsed.TotalMilliseconds);
+
+        // Pior caso: vetor já ordenado (o pivô é sempre o maior elemento)
+        numeros = GerarCrescente(numeros.Length);
+
+        tempoOrdenacao.Restart();
+        OrdenarComPilhaGrande();
+        tempoOrdenacao.Stop();
+        Console.WriteLine("Pior caso:" + tempoOrdenacao.Elapsed.TotalMilliseconds);
     }
 
     public static void GerarArray()
@@ -25,28 +39,64 @@ class quickSort{
         }
     }
 
-    static int[] GerarVetorParticaoEquilibrada(int tamanho)
+    static int[] GerarCrescente(int tamanho)
     {
         int[] vetor = new int[tamanho];
 
-        int meio = tamanho / 2;
-
-        // Coloca valores menores que o pivô
-        for (int i = 0; i < meio; i++)
+        for (int i = 0; i < tamanho; i++)
         {
             vetor[i] = i + 1;
         }
 
-        // Coloca valores maiores que o pivô
-        for (int i = meio; i < tamanho - 1; i++)
-        {
-            vetor[i] = i + 2;
-        }
+        return vetor;
+    }
 
-        // O pivô fica por último
-        vetor[tamanho - 1] = meio + 1;
+    static int[] GerarMelhorCaso(int tamanho)
+    {
+        int[] vetor = new int[tamanho];
+
+        PreencherMelhorCaso(vetor, 0, tamanho - 1, 1);
 
         return vetor;
+    }
+
+    static void PreencherMelhorCaso(int[] vetor, int inicio, int fim, int menorValor)
+    {
+        int tamanho = fim - inicio + 1;
+
+        if (tamanho <= 0)
+        {
+            return;
+        }
+
+        // Quantos elementos ficam à esquerda do pivô (a mediana)
+        int qtdMenores = (tamanho - 1) / 2;
+        int qtdMaiores = tamanho - qtdMenores - 1;
+
+        // Menores vêm primeiro, já no formato de melhor caso
+        PreencherMelhorCaso(vetor, inicio, inicio + qtdMenores - 1, menorValor);
+
+        if (qtdMaiores > 0)
+        {
+            int inicioMaiores = inicio + qtdMenores;
+
+            PreencherMelhorCaso(vetor, inicioMaiores, fim - 1, menorValor + qtdMenores + 1);
+
+            // A partição move o 1º maior para o fim do subvetor; aqui fazemos a rotação inversa
+            int ultimo = vetor[fim - 1];
+            Array.Copy(vetor, inicioMaiores, vetor, inicioMaiores + 1, qtdMaiores - 1);
+            vetor[inicioMaiores] = ultimo;
+        }
+
+        // O pivô (último elemento) é a mediana
+        vetor[fim] = menorValor + qtdMenores;
+    }
+
+    static void OrdenarComPilhaGrande()
+    {
+        Thread thread = new Thread(OrdenarArray, TamanhoPilha);
+        thread.Start();
+        thread.Join();
     }
 
     static void OrdenarArray()

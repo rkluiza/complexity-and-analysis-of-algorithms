@@ -5,15 +5,30 @@ class mergeSort{
     static int[] numeros = new int[300000];
 
     static void Main(){
-        numeros = GerarVetorInverso(numeros.Length);
-
         Stopwatch tempoOrdenacao = new Stopwatch();
+
+        // Aquecimento (fora do cronômetro): evita que a compilação do JIT
+        // entre na primeira medição e distorça a comparação entre os casos
+        numeros = GerarPiorCaso(numeros.Length);
+        OrdenarArray();
+
+        // Melhor caso: vetor já ordenado (cada merge esgota a metade esquerda logo)
+        numeros = GerarCrescente(numeros.Length);
 
         tempoOrdenacao.Start();
         OrdenarArray();
         tempoOrdenacao.Stop();
 
-        Console.WriteLine("Ordenar: " + tempoOrdenacao.Elapsed.TotalMilliseconds);
+        Console.WriteLine("Melhor caso: " + tempoOrdenacao.Elapsed.TotalMilliseconds);
+
+        // Pior caso: cada merge alterna entre as duas metades até o fim
+        numeros = GerarPiorCaso(numeros.Length);
+
+        tempoOrdenacao.Restart();
+        OrdenarArray();
+        tempoOrdenacao.Stop();
+
+        Console.WriteLine("Pior caso: " + tempoOrdenacao.Elapsed.TotalMilliseconds);
 
     }
 
@@ -25,25 +40,58 @@ class mergeSort{
         }
     }
 
-    static int[] GerarVetorInverso(int tamanho)
+    static int[] GerarCrescente(int tamanho)
     {
-        Random random = new Random();
-
         int[] vetor = new int[tamanho];
 
-        // Gera números aleatórios de 0 a 10.000
         for (int i = 0; i < tamanho; i++)
         {
-            vetor[i] = random.Next(0, 10001);
+            vetor[i] = i + 1;
         }
 
-        // Ordena o vetor
-        Array.Sort(vetor);
+        return vetor;
+    }
 
-        // Inverte o vetor
-        Array.Reverse(vetor);
+    static int[] GerarPiorCaso(int tamanho)
+    {
+        int[] vetor = GerarCrescente(tamanho);
+
+        PreencherPiorCaso(vetor, 0, tamanho - 1);
 
         return vetor;
+    }
+
+    static void PreencherPiorCaso(int[] vetor, int inicio, int fim)
+    {
+        if (inicio >= fim)
+        {
+            return;
+        }
+
+        int tamanho = fim - inicio + 1;
+        int qtdEsquerda = (tamanho + 1) / 2;
+        int[] aux = new int[tamanho];
+
+        // Posições pares vão para a esquerda e ímpares para a direita
+        for (int i = 0; i < tamanho; i++)
+        {
+            if (i % 2 == 0)
+            {
+                aux[i / 2] = vetor[inicio + i];
+            }
+            else
+            {
+                aux[qtdEsquerda + i / 2] = vetor[inicio + i];
+            }
+        }
+
+        Array.Copy(aux, 0, vetor, inicio, tamanho);
+
+        // Mesma divisão usada no Sort
+        int meio = (inicio + fim) / 2;
+
+        PreencherPiorCaso(vetor, inicio, meio);
+        PreencherPiorCaso(vetor, meio + 1, fim);
     }
 
     static void OrdenarArray(){
@@ -68,12 +116,12 @@ class mergeSort{
         int[] esquerda = new int[n1];
         int[] direita = new int[n2];
 
-        for (int i = 0; i < n1; i++){
-            esquerda[i] = vetor[inicio + i];
+        for (int e = 0; e < n1; e++){
+            esquerda[e] = vetor[inicio + e];
         }
 
-        for (int j = 0; j < n2; j++){
-            direita[j] = vetor[meio + 1 + j];
+        for (int d = 0; d < n2; d++){
+            direita[d] = vetor[meio + 1 + d];
         }
 
         int i = 0;

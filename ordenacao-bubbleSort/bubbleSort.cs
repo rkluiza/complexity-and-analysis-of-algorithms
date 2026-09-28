@@ -6,15 +6,22 @@ class bubbleSort{
 
     static void Main()
     {
-        numeros = GerarVetorInverso(numeros.Length);
-
         Stopwatch tempoOrdenacao = new Stopwatch();
+
+        // Melhor caso: vetor já ordenado (nenhuma troca)
+        numeros = GerarCrescente(numeros.Length);
 
         tempoOrdenacao.Start();
         OrdenarArray();
         tempoOrdenacao.Stop();
-        Console.WriteLine("Ordenar:" + tempoOrdenacao.Elapsed.TotalMilliseconds);
+        Console.WriteLine("Melhor caso:" + tempoOrdenacao.Elapsed.TotalMilliseconds);
 
+        numeros = GerarDecrescente(numeros.Length);
+
+        tempoOrdenacao.Restart();
+        OrdenarArray();
+        tempoOrdenacao.Stop();
+        Console.WriteLine("Pior caso:" + tempoOrdenacao.Elapsed.TotalMilliseconds);
     }
 
     public static void GerarArray()
@@ -26,23 +33,26 @@ class bubbleSort{
         }
     }
 
-    static int[] GerarVetorInverso(int tamanho)
+    static int[] GerarCrescente(int tamanho)
     {
-        Random random = new Random();
-
         int[] vetor = new int[tamanho];
 
-        // Gera números aleatórios de 0 a 10.000
         for (int i = 0; i < tamanho; i++)
         {
-            vetor[i] = random.Next(0, 10001);
+            vetor[i] = i + 1;
         }
 
-        // Ordena o vetor
-        Array.Sort(vetor);
+        return vetor;
+    }
 
-        // Inverte o vetor
-        Array.Reverse(vetor);
+    static int[] GerarDecrescente(int tamanho)
+    {
+        int[] vetor = new int[tamanho];
+
+        for (int i = 0; i < tamanho; i++)
+        {
+            vetor[i] = tamanho - i;
+        }
 
         return vetor;
     }

@@ -9,7 +9,8 @@ class selectionSort {
 
     Stopwatch cronometro = new Stopwatch();
 
-        numeros = GerarVetorInverso(numeros.Length);
+        // Melhor caso: vetor já ordenado (o índice do menor nunca é atualizado)
+        numeros = GerarCrescente(numeros.Length);
 
         cronometro.Start();
 
@@ -17,12 +18,23 @@ class selectionSort {
 
         cronometro.Stop();
 
-        Console.WriteLine("Ordenar: " + cronometro.Elapsed.TotalMilliseconds);
-   
+        Console.WriteLine("Melhor caso: " + cronometro.Elapsed.TotalMilliseconds);
+
+        // Pior caso: vetor decrescente (o índice do menor é atualizado ~n²/4 vezes)
+        numeros = GerarDecrescente(numeros.Length);
+
+        cronometro.Restart();
+
+        OrdenarArray(numeros);
+
+        cronometro.Stop();
+
+        Console.WriteLine("Pior caso: " + cronometro.Elapsed.TotalMilliseconds);
+
     }
 
     static void GerarArray(){
-       
+
         Random random = new Random();
 
         for (int i = 0; i < numeros.Length; i++)
@@ -31,23 +43,26 @@ class selectionSort {
         }
     }
 
-    static int[] GerarVetorInverso(int tamanho)
+    static int[] GerarCrescente(int tamanho)
     {
-        Random random = new Random();
-
         int[] vetor = new int[tamanho];
 
-        // Gera números aleatórios de 0 a 10.000
         for (int i = 0; i < tamanho; i++)
         {
-            vetor[i] = random.Next(0, 10001);
+            vetor[i] = i + 1;
         }
 
-        // Ordena o vetor
-        Array.Sort(vetor);
+        return vetor;
+    }
 
-        // Inverte o vetor
-        Array.Reverse(vetor);
+    static int[] GerarDecrescente(int tamanho)
+    {
+        int[] vetor = new int[tamanho];
+
+        for (int i = 0; i < tamanho; i++)
+        {
+            vetor[i] = tamanho - i;
+        }
 
         return vetor;
     }
@@ -61,7 +76,7 @@ class selectionSort {
         // Encontre o menor elemento e troque-o com o primeiro elemento. Dessa forma, o menor elemento ficará na posição correta.
         // Em seguida, encontre o menor elemento entre os restantes (ou o segundo menor) e troque-o com o segundo elemento.
         // Continuamos fazendo isso até que todos os elementos estejam na posição correta.
-       
+
         int n = numeros.Length;
 
         for(int i= 0; i < n -1; i++){
@@ -69,7 +84,7 @@ class selectionSort {
             int menorIndiceNaoOrdenado = i;
 
             for(int j = i + 1; j < n; j++){
-               
+                
                 if (numeros[j] < numeros[menorIndiceNaoOrdenado]){
 
                     menorIndiceNaoOrdenado = j;

@@ -4,32 +4,34 @@ using System.Diagnostics;
 public class shellSort
 {
 
-    static int[] numeros = new int[500000];
+    static int[] numeros = new int[300000];
     public static void Main(string[] args)
     {
-        GerarArray();
-
         Stopwatch tempoOrdenacao = new Stopwatch();
+
+        // Melhor caso: vetor já ordenado (nenhum deslocamento)
+        numeros = GerarCrescente(numeros.Length);
 
         tempoOrdenacao.Start();
         OrdenarArray(numeros, numeros.Length);
         tempoOrdenacao.Stop();
 
-        Console.WriteLine("Ordenar:" + tempoOrdenacao.Elapsed.TotalMilliseconds);
+        Console.WriteLine("Melhor caso:" + tempoOrdenacao.Elapsed.TotalMilliseconds);
 
-        // Reordenando
+        // Pior caso: menores nas posições ímpares e maiores nas pares
+        numeros = GerarPiorCaso(numeros.Length);
+
         tempoOrdenacao.Restart();
-
         OrdenarArray(numeros, numeros.Length);
         tempoOrdenacao.Stop();
 
-        Console.WriteLine("Reordenar:" + tempoOrdenacao.Elapsed.TotalMilliseconds);
+        Console.WriteLine("Pior caso:" + tempoOrdenacao.Elapsed.TotalMilliseconds);
 
 
     }
 
     static void GerarArray(){
-       
+
         Random random = new Random();
 
         for (int i = 0; i < numeros.Length; i++){
@@ -38,23 +40,30 @@ public class shellSort
 
     }
 
-    static int[] GerarVetorInverso(int tamanho)
+    static int[] GerarCrescente(int tamanho)
     {
-        Random random = new Random();
-
         int[] vetor = new int[tamanho];
 
-        // Gera números aleatórios de 0 a 10.000
         for (int i = 0; i < tamanho; i++)
         {
-            vetor[i] = random.Next(0, 10001);
+            vetor[i] = i + 1;
         }
 
-        // Ordena o vetor
-        Array.Sort(vetor);
+        return vetor;
+    }
 
-        // Inverte o vetor
-        Array.Reverse(vetor);
+    static int[] GerarPiorCaso(int tamanho)
+    {
+        int[] vetor = new int[tamanho];
+        int metade = tamanho / 2;
+
+        // Todos os intervalos > 1 são pares e nunca comparam posições pares com ímpares,
+        // então todo o trabalho fica para o intervalo 1 (Θ(n²))
+        for (int i = 0; i < metade; i++)
+        {
+            vetor[2 * i + 1] = i + 1;
+            vetor[2 * i] = metade + i + 1;
+        }
 
         return vetor;
     }
@@ -63,14 +72,14 @@ public class shellSort
 
         for (int intervalo = n / 2; intervalo > 0; intervalo /= 2) {
             for (int i = intervalo; i < n; i += 1) {
-               
+
                 int temp = numeros[i];
                 int j;
-               
+
                 for (j = i; j >= intervalo && numeros[j - intervalo] > temp; j -= intervalo) {
                     numeros[j] = numeros[j - intervalo];
                 }
-           
+
                 numeros[j] = temp;
             }
         }
