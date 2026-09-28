@@ -6,7 +6,7 @@ class quickSort{
 
     static void Main()
     {
-        GerarVetorParticaoEquilibrada(numeros.Length);
+        numeros = GerarVetorParticaoEquilibrada(numeros.Length);
 
         Stopwatch tempoOrdenacao = new Stopwatch();
 

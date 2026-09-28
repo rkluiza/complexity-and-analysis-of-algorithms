@@ -5,7 +5,7 @@ class mergeSort{
     static int[] numeros = new int[300000];
 
     static void Main(){
-        GerarVetorInverso(numeros.Length);
+        numeros = GerarVetorInverso(numeros.Length);
 
         Stopwatch tempoOrdenacao = new Stopwatch();
 

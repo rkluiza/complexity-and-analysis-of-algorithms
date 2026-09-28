@@ -6,7 +6,7 @@ class bubbleSort{
 
     static void Main()
     {
-        GerarVetorInverso(numeros.Length);
+        numeros = GerarVetorInverso(numeros.Length);
 
         Stopwatch tempoOrdenacao = new Stopwatch();
 

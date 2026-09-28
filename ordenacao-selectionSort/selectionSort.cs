@@ -9,7 +9,7 @@ class selectionSort {
 
     Stopwatch cronometro = new Stopwatch();
 
-        GerarVetorInverso(numeros.Length);
+        numeros = GerarVetorInverso(numeros.Length);
 
         cronometro.Start();
 
