@@ -8,12 +8,8 @@ class selectionSort {
     static void Main() {
 
     Stopwatch cronometro = new Stopwatch();
-    Stopwatch cronometro2 = new Stopwatch();
-    Stopwatch tempoTotal = new Stopwatch();
 
-        tempoTotal.Start();
-
-        GerarArray();
+        GerarVetorInverso(numeros.Length);
 
         cronometro.Start();
 
@@ -21,17 +17,7 @@ class selectionSort {
 
         cronometro.Stop();
 
-        cronometro2.Start();
-
-        OrdenarArray(numeros);
-
-        cronometro2.Stop();
-
-        tempoTotal.Stop();
-
-        Console.WriteLine("Ordenar desdordenado: " + cronometro.Elapsed.TotalMilliseconds);
-        Console.WriteLine("Ordenar ordenado: " + cronometro2.Elapsed.TotalMilliseconds);
-        Console.WriteLine("Tempo total: " + tempoTotal.Elapsed.TotalMilliseconds);
+        Console.WriteLine("Ordenar: " + cronometro.Elapsed.TotalMilliseconds);
    
     }
 
@@ -47,12 +33,21 @@ class selectionSort {
 
     static int[] GerarVetorInverso(int tamanho)
     {
+        Random random = new Random();
+
         int[] vetor = new int[tamanho];
 
+        // Gera números aleatórios de 0 a 10.000
         for (int i = 0; i < tamanho; i++)
         {
-            vetor[i] = tamanho - i;
+            vetor[i] = random.Next(0, 10001);
         }
+
+        // Ordena o vetor
+        Array.Sort(vetor);
+
+        // Inverte o vetor
+        Array.Reverse(vetor);
 
         return vetor;
     }

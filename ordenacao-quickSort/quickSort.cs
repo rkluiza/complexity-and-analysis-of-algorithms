@@ -6,10 +6,7 @@ class quickSort{
 
     static void Main()
     {
-        GerarArray();
-
-        Stopwatch tempoTotal = new Stopwatch();
-        tempoTotal.Start();
+        GerarVetorParticaoEquilibrada(numeros.Length);
 
         Stopwatch tempoOrdenacao = new Stopwatch();
 
@@ -17,12 +14,6 @@ class quickSort{
         OrdenarArray();
         tempoOrdenacao.Stop();
         Console.WriteLine("Ordenar:" + tempoOrdenacao.Elapsed.TotalMilliseconds);
-
-        // Reordenando
-        tempoOrdenacao.Restart();
-        OrdenarArray();
-        tempoOrdenacao.Stop();
-        Console.WriteLine("Reordenar:" + tempoOrdenacao.Elapsed.TotalMilliseconds);
     }
 
     public static void GerarArray()

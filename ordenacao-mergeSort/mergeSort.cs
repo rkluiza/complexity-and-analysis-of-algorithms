@@ -5,10 +5,7 @@ class mergeSort{
     static int[] numeros = new int[300000];
 
     static void Main(){
-        GerarArray();
-
-        Stopwatch tempoTotal = new Stopwatch();
-        tempoTotal.Start();
+        GerarVetorInverso(numeros.Length);
 
         Stopwatch tempoOrdenacao = new Stopwatch();
 
@@ -18,12 +15,6 @@ class mergeSort{
 
         Console.WriteLine("Ordenar: " + tempoOrdenacao.Elapsed.TotalMilliseconds);
 
-        //reordenando
-        tempoOrdenacao.Restart();
-        OrdenarArray();
-        tempoOrdenacao.Stop();
-
-        Console.WriteLine("Reordenar: " + tempoOrdenacao.Elapsed.TotalMilliseconds);
     }
 
     public static void GerarArray(){
@@ -36,12 +27,21 @@ class mergeSort{
 
     static int[] GerarVetorInverso(int tamanho)
     {
+        Random random = new Random();
+
         int[] vetor = new int[tamanho];
 
+        // Gera números aleatórios de 0 a 10.000
         for (int i = 0; i < tamanho; i++)
         {
-            vetor[i] = tamanho - i;
+            vetor[i] = random.Next(0, 10001);
         }
+
+        // Ordena o vetor
+        Array.Sort(vetor);
+
+        // Inverte o vetor
+        Array.Reverse(vetor);
 
         return vetor;
     }
