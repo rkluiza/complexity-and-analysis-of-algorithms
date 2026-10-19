@@ -4,11 +4,16 @@ namespace PrimMST;
 
 /// <summary>
 /// Executa os três testes pedidos no relatório: pequena, média e grande instância.
+/// Nos testes aleatórios, cada tamanho é testado com várias sementes (grafos diferentes),
+/// e cada grafo é executado algumas vezes para estabilizar a medição de tempo.
 /// </summary>
 public static class ExecutorTestes
 {
-    // Semente fixa: os mesmos grafos e a mesma raiz são gerados a cada execução (resultado reproduzível)
-    private const int Semente = 42;
+    // Cada semente gera um grafo diferente (outras conexões, outros pesos e outra raiz)
+    private static readonly int[] Sementes = { 42, 43, 44 };
+
+    // Quantas vezes o Prim é executado sobre o mesmo grafo (para calcular a mediana do tempo)
+    private const int Repeticoes = 3;
 
     /// <summary>
     /// Teste 1 – Pequena instância: grafo do relatório (A a E), com as decisões passo a passo.
@@ -29,18 +34,17 @@ public static class ExecutorTestes
         string Nome(int i) => ((char)('A' + i)).ToString();
 
         Console.WriteLine($"Entrada: {g.NumVertices} vértices, {g.NumArestas} arestas, raiz = A");
-        Console.WriteLine("Decisões do algoritmo:");
 
-        var sw = Stopwatch.StartNew();
-        var res = Prim.MstPrim(g, 0, Console.WriteLine, Nome);
-        sw.Stop();
+        // Execução demonstrativa (com log, fora da medição de tempo, pois imprimir na tela é lento)
+        Console.WriteLine("Decisões do algoritmo:");
+        var demo = Prim.MstPrim(g, 0, Console.WriteLine, Nome);
 
         Console.WriteLine("Solução obtida (arestas da MST):");
         for (int v = 0; v < g.NumVertices; v++)
-            if (res.Pai[v] != -1)
-                Console.WriteLine($"   {Nome(res.Pai[v])}-{Nome(v)}");
+            if (demo.Pai[v] != -1)
+                Console.WriteLine($"   {Nome(demo.Pai[v])}-{Nome(v)}");
 
-        Imprimir(g, res, sw);
+        ExecutarRepetidas(g, 0, "Grafo do relatório");
     }
 
     /// <summary>
@@ -53,35 +57,56 @@ public static class ExecutorTestes
     /// </summary>
     public static void TesteGrande() => TesteAleatorio("Teste 3 - Grande instância", 100_000, 500_000);
 
+    /// <summary>
+    /// Gera um grafo diferente para cada semente, executa o Prim e confere cada um com o Kruskal.
+    /// </summary>
     private static void TesteAleatorio(string titulo, int numVertices, int numArestas)
     {
         Console.WriteLine($"\n=== {titulo} ===");
-        var rnd = new Random(Semente);
+        Console.WriteLine($"Cada grafo: {numVertices} vértices, {numArestas} arestas, pesos de 1 a 1000; " +
+                          $"{Sementes.Length} sementes, {Repeticoes} execuções por grafo");
 
-        var g = GeradorGrafo.Gerar(numVertices, numArestas, 1000, rnd);
-        int raiz = rnd.Next(numVertices); // raiz escolhida aleatoriamente
+        int grafosOk = 0;
+        foreach (int semente in Sementes)
+        {
+            var rnd = new Random(semente);
+            var g = GeradorGrafo.Gerar(numVertices, numArestas, 1000, rnd);
+            int raiz = rnd.Next(numVertices); // raiz escolhida aleatoriamente
 
-        Console.WriteLine($"Entrada: {g.NumVertices} vértices, {g.NumArestas} arestas, pesos de 1 a 1000, raiz = {raiz}");
+            bool ok = ExecutarRepetidas(g, raiz, $"Semente {semente} (raiz {raiz})");
+            if (ok) grafosOk++;
+        }
 
-        var sw = Stopwatch.StartNew();
-        var res = Prim.MstPrim(g, raiz);
-        sw.Stop();
-
-        Imprimir(g, res, sw);
+        Console.WriteLine($"Resumo: {grafosOk} de {Sementes.Length} grafos conferem com o Kruskal");
     }
 
     /// <summary>
-    /// Mostra custo, tempo e a conferência da solução (nº de arestas e comparação com o Kruskal).
+    /// Executa o Prim várias vezes sobre o mesmo grafo, mede o tempo de cada execução
+    /// e confere o resultado (nº de arestas e comparação com o Kruskal). Retorna true se tudo conferiu.
     /// </summary>
-    private static void Imprimir(Grafo g, ResultadoMst res, Stopwatch sw)
+    private static bool ExecutarRepetidas(Grafo g, int raiz, string rotulo)
     {
-        long custoKruskal = VerificadorKruskal.CustoMst(g);
-        bool arestasOk = res.NumArestas == g.NumVertices - 1;
-        bool custoOk = res.CustoTotal == custoKruskal;
+        long custoKruskal = VerificadorKruskal.CustoMst(g); // calculado uma vez por grafo
+        var tempos = new double[Repeticoes];
+        bool tudoOk = true;
+        long custoPrim = 0;
 
-        Console.WriteLine($"Custo total da MST (Prim): {res.CustoTotal}");
-        Console.WriteLine($"Tempo de execução do Prim: {sw.Elapsed.TotalMilliseconds:F3} ms");
-        Console.WriteLine($"Verificação: arestas = {res.NumArestas} (esperado {g.NumVertices - 1}) -> {(arestasOk ? "OK" : "ERRO")}");
-        Console.WriteLine($"Verificação: custo do Kruskal = {custoKruskal} -> {(custoOk ? "OK, custos iguais" : "ERRO, custos diferentes")}");
+        for (int i = 0; i < Repeticoes; i++)
+        {
+            var sw = Stopwatch.StartNew();
+            var res = Prim.MstPrim(g, raiz);
+            sw.Stop();
+
+            tempos[i] = sw.Elapsed.TotalMilliseconds;
+            custoPrim = res.CustoTotal;
+            tudoOk &= res.NumArestas == g.NumVertices - 1 && res.CustoTotal == custoKruskal;
+        }
+
+        string lista = string.Join(" / ", tempos.Select(t => t.ToString("F3")));
+        Array.Sort(tempos);
+
+        Console.WriteLine($"{rotulo}: custo Prim = {custoPrim}, custo Kruskal = {custoKruskal}, " +
+                          $"tempos = {lista} ms, mediana = {tempos[Repeticoes / 2]:F3} ms -> {(tudoOk ? "OK" : "ERRO")}");
+        return tudoOk;
     }
 }
