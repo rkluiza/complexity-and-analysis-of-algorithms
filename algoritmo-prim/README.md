@@ -36,8 +36,7 @@ MST-PRIM(G, w, r)
 |--------------------------------------|-----------------------|
 | Vetor / busca linear                 | O(V²)                 |
 | Heap binário (min-heap)              | O(E log V)            |
- 
-> Ajuste a tabela de acordo com a estrutura utilizada na implementação.
+
  
 ## Estrutura do projeto
  
