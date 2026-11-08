@@ -1,8 +1,6 @@
 namespace PrimMST;
 
-/// <summary>
-/// Resultado do algoritmo: vetor de predecessores (a árvore) e custo total.
-/// </summary>
+// Resultado do algoritmo: vetor de predecessores (a árvore) e custo total.
 public class ResultadoMst
 {
     public int[] Pai { get; }
@@ -14,8 +12,6 @@ public class ResultadoMst
         CustoTotal = custoTotal;
     }
 
-    /// <summary>
-    /// Número de arestas da árvore: vértices que possuem pai (todos, menos a raiz).
-    /// </summary>
+    // Número de arestas da árvore: vértices que possuem pai (todos, menos a raiz).
     public int NumArestas => Pai.Count(p => p != -1);
 }

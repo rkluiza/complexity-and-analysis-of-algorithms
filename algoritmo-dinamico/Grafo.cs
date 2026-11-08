@@ -1,9 +1,7 @@
 namespace PrimMST;
 
-/// <summary>
-/// Grafo não direcionado e ponderado, representado por lista de adjacência.
-/// Adj[u] guarda os pares (vizinho v, peso w(u,v)) de cada vértice u.
-/// </summary>
+// Grafo não direcionado e ponderado, representado por lista de adjacência.
+// Adj[u] guarda os pares (vizinho v, peso w(u,v)) de cada vértice u.
 public class Grafo
 {
     public int NumVertices { get; }
@@ -18,9 +16,7 @@ public class Grafo
             Adj[i] = new List<(int, int)>();
     }
 
-    /// <summary>
-    /// Como o grafo é não direcionado, a aresta é inserida nas listas de u e de v.
-    /// </summary>
+    // Como o grafo é não direcionado, a aresta é inserida nas listas de u e de v.
     public void AdicionarAresta(int u, int v, int peso)
     {
         Adj[u].Add((v, peso));

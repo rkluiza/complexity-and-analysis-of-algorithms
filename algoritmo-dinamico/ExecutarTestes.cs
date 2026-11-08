@@ -2,17 +2,14 @@ using System.Diagnostics;
 
 namespace PrimMST;
 
-/// <summary>
-/// Testes da Programação Dinâmica (pequena, média e grande instância).
-/// Os tamanhos são limitados pela natureza exponencial da DP (2^(n-1) estados).
-/// A conferência é feita por: Bottom-Up = Top-Down, validação estrutural da árvore
-/// e, no grafo pequeno, comparação com o custo esperado calculado à mão.
-/// </summary>
+//Testes da Programação Dinâmica Bottom-Up (pequena, média e grande instância).
+//Os tamanhos são limitados pela natureza exponencial da DP (2^(n-1) estados).
 public static class ExecutorTestesDP
 {
     private static readonly int[] Sementes = { 42, 43, 44 };
+    private const int Repeticoes = 3; // execuções por grafo (usa-se a mediana do tempo)
 
-    /// <summary>Teste 1 – grafo do relatório (A a E), com tabela, decisões e contagem de chamadas.</summary>
+    //Teste 1 – grafo do relatório (A a E), com tabela, decisões e estatísticas
     public static void TestePequeno()
     {
         Console.WriteLine("=== Teste 1 - Pequena instância (grafo do relatório) ===");
@@ -32,42 +29,39 @@ public static class ExecutorTestesDP
 
         Console.WriteLine($"Entrada: {g.NumVertices} vértices, {g.NumArestas} arestas, raiz = A");
 
-        // Bottom-Up com tabela
-        var bu = MstDP.BottomUp(g, raiz, out int[] dp, out sbyte[] ultimo);
+        var res = MstDP.BottomUp(g, raiz, out int[] dp, out sbyte[] ultimo, out EstatisticasDP est);
         MstDP.ImprimirTabela(g, raiz, dp, ultimo, Nome);
 
-        Console.WriteLine($"\nSolução DP Bottom-Up: custo = {bu.CustoTotal}");
+        Console.WriteLine($"\nSolução DP Bottom-Up: custo = {res.CustoTotal}");
         Console.WriteLine("Arestas da MST:");
         for (int v = 0; v < g.NumVertices; v++)
-            if (bu.Pai[v] != -1)
-                Console.WriteLine($"   {Nome(bu.Pai[v])}-{Nome(v)}");
+            if (res.Pai[v] != -1)
+                Console.WriteLine($"   {Nome(res.Pai[v])}-{Nome(v)}");
 
-        // Top-Down com e sem cache: evidência dos subproblemas sobrepostos
-        MstDP.TopDown(g, raiz, usarCache: false, out var semCache);
-        var td = MstDP.TopDown(g, raiz, usarCache: true, out var comCache);
+        long distintos = est.EstadosCalculados; // estados distintos consultados = estados calculados
+        Console.WriteLine("\nSubproblemas sobrepostos (reaproveitamento da tabela):");
+        Console.WriteLine($"   Estados calculados (cada um uma única vez) : {est.EstadosCalculados}");
+        Console.WriteLine($"   Consultas à tabela                         : {est.ConsultasTabela}");
+        Console.WriteLine($"   Resultados reaproveitados                  : {est.ConsultasTabela - distintos}");
+        Console.WriteLine($"   Chamadas que a recursão simples faria      : {MstDP.ChamadasRecursaoSimples(g.NumVertices):N0}");
 
-        Console.WriteLine("\nSubproblemas sobrepostos (Top-Down):");
-        Console.WriteLine($"   Recursão simples (sem cache): {semCache.Chamadas} chamadas");
-        Console.WriteLine($"   Com memoização              : {comCache.Chamadas} chamadas, " +
-                          $"{comCache.EstadosCalculados} estados calculados, {comCache.AcertosCache} acertos de cache");
-        Console.WriteLine($"   Custo Top-Down = {td.CustoTotal}");
-
-        bool ok = bu.CustoTotal == td.CustoTotal
-               && bu.CustoTotal == custoEsperado
-               && ArvoreValida(g, raiz, bu) && ArvoreValida(g, raiz, td);
-        Console.WriteLine($"Bottom-Up = Top-Down = esperado ({custoEsperado}) e árvore válida? {(ok ? "OK" : "ERRO")}");
+        bool ok = res.CustoTotal == custoEsperado && ArvoreValida(g, raiz, res);
+        Console.WriteLine($"Custo igual ao esperado ({custoEsperado}) e árvore válida? {(ok ? "OK" : "ERRO")}");
     }
 
-    /// <summary>Teste 2 – média instância: 15 vértices, 40 arestas (2^14 = 16.384 estados).</summary>
+    //Teste 2 – média instância: 15 vértices, 40 arestas (2^14 = 16.384 estados)
     public static void TesteMedio() => TesteAleatorio("Teste 2 - Média instância", 15, 40);
 
-    /// <summary>Teste 3 – grande instância para a DP: 20 vértices, 60 arestas (2^19 = 524.288 estados).</summary>
+    //Teste 3 – grande instância para a DP: 20 vértices, 60 arestas (2^19 = 524.288 estados)
     public static void TesteGrande() => TesteAleatorio("Teste 3 - Grande instância (limite prático da DP)", 20, 60);
 
     private static void TesteAleatorio(string titulo, int numVertices, int numArestas)
     {
         Console.WriteLine($"\n=== {titulo} ===");
-        Console.WriteLine($"Cada grafo: {numVertices} vértices, {numArestas} arestas, pesos de 1 a 1000; {Sementes.Length} sementes");
+        Console.WriteLine($"Cada grafo: {numVertices} vértices, {numArestas} arestas, pesos de 1 a 1000; " +
+                          $"{Sementes.Length} sementes, {Repeticoes} execuções por grafo (mediana)");
+        Console.WriteLine($"Recursão simples faria ~{MstDP.ChamadasRecursaoSimples(numVertices):E2} chamadas; " +
+                          $"a tabela tem {1L << (numVertices - 1):N0} estados");
 
         int ok = 0;
         foreach (int semente in Sementes)
@@ -77,35 +71,36 @@ public static class ExecutorTestesDP
             int raiz = rnd.Next(numVertices);
             if (Executar($"Semente {semente} (raiz {raiz})", g, raiz)) ok++;
         }
-        Console.WriteLine($"Resumo: {ok} de {Sementes.Length} grafos conferem (Bottom-Up = Top-Down e árvore válida)");
+        Console.WriteLine($"Resumo: {ok} de {Sementes.Length} grafos com árvore válida");
     }
 
-    /// <summary>Executa Bottom-Up e Top-Down no mesmo grafo, compara custos, valida a árvore e mede o tempo.</summary>
+    //Executa o Bottom-Up várias vezes no mesmo grafo, valida a árvore e mede o tempo
     private static bool Executar(string rotulo, Grafo g, int raiz)
     {
-        var sw = Stopwatch.StartNew();
-        var bu = MstDP.BottomUp(g, raiz, out _, out _);
-        sw.Stop();
-        double tBu = sw.Elapsed.TotalMilliseconds;
+        var tempos = new double[Repeticoes];
+        ResultadoMst res = null!;
+        EstatisticasDP est = null!;
 
-        sw.Restart();
-        var td = MstDP.TopDown(g, raiz, usarCache: true, out var est);
-        sw.Stop();
-        double tTd = sw.Elapsed.TotalMilliseconds;
+        for (int i = 0; i < Repeticoes; i++)
+        {
+            var sw = Stopwatch.StartNew();
+            res = MstDP.BottomUp(g, raiz, out _, out _, out est);
+            sw.Stop();
+            tempos[i] = sw.Elapsed.TotalMilliseconds;
+        }
 
-        bool ok = bu.CustoTotal == td.CustoTotal
-               && ArvoreValida(g, raiz, bu)
-               && ArvoreValida(g, raiz, td);
+        string lista = string.Join(" / ", tempos.Select(t => t.ToString("F3")));
+        Array.Sort(tempos);
+        bool ok = ArvoreValida(g, raiz, res);
 
-        Console.WriteLine($"{rotulo}: custo Bottom-Up = {bu.CustoTotal}, Top-Down = {td.CustoTotal} -> {(ok ? "OK" : "ERRO")}");
-        Console.WriteLine($"   tempos: Bottom-Up = {tBu:F3} ms | Top-Down = {tTd:F3} ms " +
-                          $"(estados: {est.EstadosCalculados}, chamadas: {est.Chamadas}, acertos de cache: {est.AcertosCache})");
+        Console.WriteLine($"{rotulo}: custo = {res.CustoTotal} -> {(ok ? "OK" : "ERRO")}");
+        Console.WriteLine($"   tempos = {lista} ms, mediana = {tempos[Repeticoes / 2]:F3} ms | " +
+                          $"estados: {est.EstadosCalculados:N0}, consultas: {est.ConsultasTabela:N0}, " +
+                          $"reaproveitados: {est.ConsultasTabela - est.EstadosCalculados:N0}");
         return ok;
     }
 
-    /// <summary>
-    /// Mostra o crescimento do tempo da DP (≈ dobra a cada vértice) conforme n aumenta.
-    /// </summary>
+    // Mostra o crescimento do tempo da DP (≈ dobra a cada vértice) conforme n aumenta
     public static void TesteEscalabilidade()
     {
         Console.WriteLine("\n=== Escalabilidade da DP Bottom-Up (arestas = 3n, semente 42) ===");
@@ -125,10 +120,9 @@ public static class ExecutorTestesDP
         }
     }
 
-    /// <summary>
-    /// Validação estrutural da árvore: n-1 arestas, todos os vértices chegam à raiz seguindo o vetor
-    /// de pais (sem ciclos) e o custo recalculado a partir do grafo é igual ao custo informado.
-    /// </summary>
+    
+    /* Validação estrutural da árvore: n-1 arestas, todos os vértices chegam à raiz seguindo o vetor
+    de pais (sem ciclos) e o custo recalculado a partir do grafo é igual ao custo informado.*/
     private static bool ArvoreValida(Grafo g, int raiz, ResultadoMst res)
     {
         int n = g.NumVertices;

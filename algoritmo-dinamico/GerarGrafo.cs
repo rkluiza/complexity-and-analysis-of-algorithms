@@ -1,14 +1,10 @@
 namespace PrimMST;
 
-/// <summary>
-/// Gera grafos aleatórios, conexos, não direcionados e ponderados para os testes.
-/// </summary>
+// Gera grafos aleatórios, conexos, não direcionados e ponderados para os testes.
 public static class GeradorGrafo
 {
-    /// <summary>
-    /// Primeiro constrói uma árvore aleatória que liga todos os vértices (garante a conexidade).
-    /// Depois acrescenta arestas aleatórias, sem repetir arestas, até chegar em numArestas.
-    /// </summary>
+    // Primeiro constrói uma árvore aleatória que liga todos os vértices (garante a conexidade).
+    // Depois acrescenta arestas aleatórias, sem repetir arestas, até chegar em numArestas.
     public static Grafo Gerar(int numVertices, int numArestas, int pesoMax, Random rnd)
     {
         long maxArestas = (long)numVertices * (numVertices - 1) / 2;
